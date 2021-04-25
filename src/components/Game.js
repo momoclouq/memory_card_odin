@@ -5,35 +5,36 @@ import database from "./Database";
 import Card from "./Card";
 
 const Game = () => {
+    const reinitialize = () => {
+        let temp = [];
+        for (let i = 0; i < 12; i++){
+            temp.push(true);
+        }
+
+        return temp;
+    }
+
     const [listOfCardLink, setListOfCardLink] = useState([]);
-    const [listOfCurrentCardLink, setListOfCurrentCardLink] = useState([]);
+    const [listOfCurrentCardLink, setListOfCurrentCardLink] = useState(reinitialize());
     const [currentScore, setCurrentScore] = useState(0);
     const [maxScore, setMaxScore] = useState(0);
 
-    useEffect(() => {
-        //initialize the cards link
-        let temp = [];
-        for (let i = 0; i < 12; i++){
-            temp.push(database[`pic${i+1}`]);
-        }
-        setListOfCardLink(temp)
-        setListOfCurrentCardLink([...temp]);
-    }, []);
-
     const checkValue = (event) => {
         let key = parseInt(event.target.id.split("-")[1]);
-        
+
         if (listOfCurrentCardLink[key]){
             let temp = [...listOfCurrentCardLink];
-            temp[key] = null;
+            temp[key] = false;
             setListOfCurrentCardLink(temp);
 
             //add score
             if (currentScore + 1 > maxScore) setMaxScore(currentScore + 1);
             setCurrentScore(currentScore + 1);
+            console.log("final");
         } else {
+            console.log("what");
             setCurrentScore(0);
-            setListOfCurrentCardLink([...listOfCardLink]);
+            setListOfCurrentCardLink(reinitialize());
         }
     }
 
@@ -45,9 +46,7 @@ const Game = () => {
     }
 
     const displayListOfCard = () => {
-        let listOfCards = listOfCardLink.map((link, index) => {
-            return <Card link={link} id={index} key={index} checkValue={checkValue}/>
-        });
+        let listOfCards = [...listOfCardLink];
         shuffleArray(listOfCards);
 
         return listOfCards;
@@ -58,6 +57,22 @@ const Game = () => {
         setCurrentScore(0);
         setMaxScore(0);
     }
+
+    useEffect(() => {
+        //initialize the cards link
+        let temp = [];
+        for (let i = 0; i < 12; i++){
+            temp.push(database[`pic${i+1}`]);
+        }
+        
+        setListOfCardLink(temp.map((link, index) => {
+            return <Card link={link} id={index} key={index} checkValue={checkValue}/>
+        }));
+    }, []);
+
+    useEffect(() => {
+        console.log('nothing');
+    }, [currentScore, maxScore]) 
 
     return(
         <div className="game">
